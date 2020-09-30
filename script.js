@@ -50,3 +50,79 @@ var questions = [
     answer: "console log",
   },
 ];
+
+// Triggers timer on button, shows user a display on the screen
+timer.addEventListener("click", function () {
+  // We are checking zero because its originally set to zero
+  if (holdInterval === 0) {
+    holdInterval = setInterval(function () {
+      secondsLeft--;
+      currentTime.textContent = "Time: " + secondsLeft;
+
+      if (secondsLeft <= 0) {
+        clearInterval(holdInterval);
+        allDone();
+        currentTime.textContent = "Time's up!";
+      }
+    }, 1000);
+  }
+  render(questionIndex);
+});
+
+// Renders questions and choices to page:
+function render(questionIndex) {
+  questionsDiv.innerHTML = "";
+  ulCreate.innerHTML = "";
+
+  // Appends question title only
+  var userQuestion = questions[questionIndex].title;
+  var userChoices = questions[questionIndex].choices;
+  questionsDiv.textContent = userQuestion;
+
+  // New for each for question choices
+  userChoices.forEach(function (newItem) {
+    var listItem = document.createElement("li");
+    listItem.textContent = newItem;
+    questionsDiv.appendChild(ulCreate);
+    ulCreate.appendChild(listItem);
+    listItem.addEventListener("click", compare);
+  });
+}
+// Event to compare choices with answer
+function compare(event) {
+  var element = event.target;
+
+  if (element.matches("li")) {
+    var createDiv = document.createElement("div");
+    createDiv.setAttribute("id", "createDiv");
+
+    if (element.textContent == questions[questionIndex].answer) {
+      score++;
+      createDiv.textContent =
+        "Correct! The answer is:  " + questions[questionIndex].answer;
+    } else {
+      // Will deduct -10 seconds off secondsLeft for wrong answers
+      secondsLeft = secondsLeft - penalty;
+      createDiv.textContent =
+        "Wrong! The correct answer is:  " + questions[questionIndex].answer;
+    }
+  }
+  // Question Index determines number question user is on
+  questionIndex++;
+
+  if (questionIndex >= questions.length) {
+    // All done will append last page with user stats
+    allDone();
+    createDiv.textContent =
+      "End of quiz!" +
+      " " +
+      "You got  " +
+      score +
+      "/" +
+      questions.length +
+      " Correct!";
+  } else {
+    render(questionIndex);
+  }
+  questionsDiv.appendChild(createDiv);
+}
